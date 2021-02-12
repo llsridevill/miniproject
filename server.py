@@ -44,6 +44,11 @@ def result():
         present_perfect=['had been','have been','has been']
         rem_list = {}
         for sentence in sentences:
+            day_after_tomorrow = 0
+            if str(sentence).find("last")!=-1 or str(sentence).find("since")!=-1:
+                continue
+            if str(sentence).find("day after tomorrow")!=-1:
+                day_after_tomorrow=1
             #print(sentence,sentence.ents)
             pp = False
             for i in present_perfect:
@@ -59,6 +64,7 @@ def result():
             time = False
             ent1 = ""
             ent2 = ""
+            skip=0
             list1 = []
             list2 = []
             pobj=''
@@ -68,14 +74,22 @@ def result():
                    'medicine': 'Take medicines at', 'medicines': 'Take medicines at', 'come': 'Your Meeting at','tablet': 'Take medicines at',
                    'party' : 'Attend Party at', }
             for ent in sentence.ents:
-
                 #print(ent.text,ent.label_)
+                if skip==1:
+                    skip=0
+                    continue
                 if ent.label_ == "DATE":
                     date_words = ent.text.split(" ")
-                    print(ent.text)
+                    #print(ent.text)
+
                     if (ent.text.casefold() == 'today'):
                         list1.append(str(datetime.date.today()))
-                    elif (ent.text .casefold() == 'tomorrow'):
+                    elif (ent.text.casefold() == 'day'):
+                        index = sentence.ents.index(ent)
+                        if str(sentence.ents[index+1])=='tomorrow':
+                            list1.append(str(datetime.date.today() + datetime.timedelta(days=2)))
+                            skip = 1
+                    elif (ent.text.casefold() == 'tomorrow'):
                         list1.append(str(datetime.date.today() + datetime.timedelta(days=1)))
                     elif ((date_words[0].casefold() == 'this') and date_words[1] in words):
                         n = int(datetime.datetime.today().weekday())
@@ -102,7 +116,7 @@ def result():
                 for token in sentence:
                     if token.dep_ == "ROOT" or token.dep_ == 'dobj' or token.dep_ == 'pobj' or token.dep_ == 'compound' or token.dep_ == 'nsubjpass':
                         if (token.dep_=='pobj' or token.dep_ == 'compound') and (token.text not in notpobj):
-                            pobj=pobj+' '+token.text
+                            pobj= pobj+' '+token.text
 
                         if token.dep_ != 'pobj':
                             list2.append(token.text)
@@ -118,7 +132,9 @@ def result():
                     #print(word)
                     if word.casefold() in rem:
                         flag = True
-                        key1 = rem[word.casefold()]+' '+str(pobj)
+                        key1 = rem[word.casefold()]
+                        if(pobj.find('tomorrow')==-1 or pobj.find('day')==-1):
+                            key1 = key1+' '+str(pobj)
                         break
                 value = ' '.join(list1)
                 #print(key1)
@@ -126,7 +142,7 @@ def result():
                     rem_list[key1] = value
                 else:
                     rem_list[key] = value
-        return render_template("result.html",result = rem_list)
+        return render_template("result.html", result = rem_list)
 
 if __name__ == "__main__":
     app.run()

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     <meta charset="UTF-8">
-    <title>Title</title>
     <title>Reminder List Generator</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -141,19 +141,29 @@ input {
 </head>
 <body>
 <div style="background-image: url('static/images/bg.jpg');" class="contact1">
-		<div class="container-contact1">
+		<div class="container-contact1" ng-app="myApp" ng-controller="personCtrl">
 
-			<div id="myDIV" class="header">
+			<div id="myDIV" class="header" ng-hide="myVar">
 			  <h2 style="margin:5px">Add Reminders</h2>
 			  <input type="text" id="myInput" placeholder="Title...">
 			  <span onclick="newElement()" class="addBtn">Add</span>
 			</div>
 
+
+			<h1 ng-show="myVar">
+			Final Reminders
+			</h1>
+			<div style="padding-top:55px">
 			<ul id="myUL">
 				{% for reminder,time in result.items() %}
 			  <li style="padding-right:50px" id="{{reminder}}">{{reminder}}&nbsp:&nbsp{{time}}</li>
 			    {% endfor %}
 			</ul>
+				<br><br>
+				<center><button  ng-click="toggle()" class="contact1-form-btn" onclick="removex()" ng-hide="myVar">Finish</button></center>
+			</div>
+
+
 
 			<!--div class="container-contact1-form-btn">
 					<button type="submit" name="submit" class="contact1-form-btn">
@@ -167,7 +177,15 @@ input {
 		</div>
 </div>
 
-
+<script>
+var app = angular.module('myApp', []);
+app.controller('personCtrl', function($scope) {
+    $scope.myVar = false;
+    $scope.toggle = function() {
+        $scope.myVar = !$scope.myVar;
+    };
+});
+</script>
 
 
 <!--===============================================================================================-->
@@ -248,8 +266,14 @@ function newElement() {
       var div = this.parentElement;
       div.style.display = "none";
     }
+
   }
 }
+function removex(){
+    	for (i = 0; i < close.length; i++) {
+		close[i].style.visibility="hidden";
+    }
+    }
 </script>
 <!--===============================================================================================-->
 	<script src="static/js/main.js"></script>
